@@ -29,8 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __EDITFIELD_H__
 #define __EDITFIELD_H__
 
-#include "renderer/Material.h"
-
 /*
 ===============================================================================
 
@@ -67,7 +65,6 @@ public:
 	void			KeyDownEvent( int key );
 	void			Paste( void );
 	char *			GetBuffer( void );
-	void			Draw( int x, int y, int width, bool showCursor, const idMaterial *material );
 	void			SetBuffer( const char *buffer );
 
 private:

@@ -525,12 +525,3 @@ void idEditField::SetBuffer( const char *buf ) {
 	idStr::Copynz( buffer, buf, sizeof( buffer ) );
 	SetCursor( strlen( buffer ) );
 }
-
-/*
-===============
-idEditField::Draw
-===============
-*/
-void idEditField::Draw( int x, int y, int width, bool showCursor, const idMaterial *shader ) {
-	return;
-}

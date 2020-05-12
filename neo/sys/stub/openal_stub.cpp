@@ -28,8 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sys/platform.h"
 
-#include "sound/snd_local.h"
-
 extern "C" {
 
 AL_API ALenum AL_APIENTRY alGetError() {

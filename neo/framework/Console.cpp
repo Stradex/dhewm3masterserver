@@ -72,8 +72,6 @@ public:
 
 	//============================
 
-	const idMaterial *	charSetShader;
-
 private:
 	void				KeyDownEvent( int key );
 
@@ -124,9 +122,6 @@ private:
 	static idCVar		con_speed;
 	static idCVar		con_notifyTime;
 	static idCVar		con_noPrint;
-
-	const idMaterial *	whiteShader;
-	const idMaterial *	consoleShader;
 };
 
 static idConsoleLocal localConsole;
@@ -920,9 +915,7 @@ ForceFullScreen is used by the editor
 void	idConsoleLocal::Draw( bool forceFullScreen ) {
 	float y = 0.0f;
 
-	if ( !charSetShader ) {
-		return;
-	}
+	return;
 
 	if ( forceFullScreen ) {
 		// if we are forced full screen because of a disconnect,

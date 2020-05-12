@@ -389,9 +389,6 @@ set(src_core
 	${src_framework}
 )
 
-set(src_stub_openal		sys/stub/openal_stub.cpp)
-set(src_stub_gl			sys/stub/stub_gl.cpp)
-
 if(AROS)
 	set(DHEWM3BINARY "ADoom3")
 	set(sys_libs ${sys_libs} dll)
@@ -531,8 +528,6 @@ endif()
 if(DEDICATED)
 	add_executable(${DHEWM3BINARY}ded WIN32 MACOSX_BUNDLE
 		${src_core}
-		${src_stub_openal}
-		${src_stub_gl}
 		${src_sys_base}
 	)
 

@@ -27,8 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 #include "sys/platform.h"
 
-#include "renderer/tr_local.h"
-
 void APIENTRY glAccum(GLenum op, GLfloat value){};
 void APIENTRY glAlphaFunc(GLenum func, GLclampf ref){};
 GLboolean APIENTRY glAreTexturesResident(GLsizei n, const GLuint *textures, GLboolean *residences){ return false; };
