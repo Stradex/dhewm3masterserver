@@ -67,7 +67,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // default network server port
 #ifndef PORT_SERVER
-	#define	PORT_SERVER					27666
+	#define	PORT_SERVER					27650 //default masterserver port
 #endif
 
 // broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers

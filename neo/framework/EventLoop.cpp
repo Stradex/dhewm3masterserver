@@ -204,23 +204,6 @@ void idEventLoop::Init( void ) {
 	initialTimeOffset = Sys_Milliseconds();
 
 	common->StartupVariable( "journal", false );
-
-	if ( com_journal.GetInteger() == 1 ) {
-		common->Printf( "Journaling events\n" );
-		com_journalFile = fileSystem->OpenFileWrite( "journal.dat" );
-		com_journalDataFile = fileSystem->OpenFileWrite( "journaldata.dat" );
-	} else if ( com_journal.GetInteger() == 2 ) {
-		common->Printf( "Replaying journaled events\n" );
-		com_journalFile = fileSystem->OpenFileRead( "journal.dat" );
-		com_journalDataFile = fileSystem->OpenFileRead( "journaldata.dat" );
-	}
-
-	if ( !com_journalFile || !com_journalDataFile ) {
-		com_journal.SetInteger( 0 );
-		com_journalFile = 0;
-		com_journalDataFile = 0;
-		common->Printf( "Couldn't open journal files\n" );
-	}
 }
 
 /*

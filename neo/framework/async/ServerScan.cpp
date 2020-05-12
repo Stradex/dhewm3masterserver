@@ -213,7 +213,7 @@ idServerScan::EmitGetInfo
 ================
 */
 void idServerScan::EmitGetInfo( netadr_t &serv ) {
-	idAsyncNetwork::client.GetServerInfo( serv );
+
 }
 
 /*
@@ -231,36 +231,7 @@ idServerScan::NetScan
 ================
 */
 void idServerScan::NetScan( ) {
-	if ( !idAsyncNetwork::client.IsPortInitialized() ) {
-		// if the port isn't open, initialize it, but wait for a short
-		// time to let the OS do whatever magic things it needs to do...
-		idAsyncNetwork::client.InitPort();
-		// start the scan one second from now...
-		scan_state = WAIT_ON_INIT;
-		endWaitTime = Sys_Milliseconds() + 1000;
-		return;
-	}
 
-	// make sure the client port is open
-	idAsyncNetwork::client.InitPort();
-
-	scan_state = NET_SCAN;
-	challenge++;
-
-	idList<networkServer_t>::Clear();
-	m_sortedServers.Clear();
-	cur_info = 0;
-	net_info.Clear();
-	GUIUpdateSelected();
-	common->DPrintf( "NetScan with challenge %d\n", challenge );
-
-	while ( cur_info < Min( net_servers.Num(), MAX_PINGREQUESTS ) ) {
-		netadr_t serv = net_servers[ cur_info ].adr;
-		EmitGetInfo( serv );
-		net_servers[ cur_info ].time = Sys_Milliseconds();
-		net_info.SetInt( Sys_NetAdrToString( serv ), cur_info );
-		cur_info++;
-	}
 }
 
 /*

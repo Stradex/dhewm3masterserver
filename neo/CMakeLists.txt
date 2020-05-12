@@ -324,7 +324,6 @@ set(src_framework
 	framework/FileSystem.cpp
 	framework/KeyInput.cpp
 	framework/UsercmdGen.cpp
-	framework/async/AsyncClient.cpp
 	framework/async/AsyncNetwork.cpp
 	framework/async/AsyncServer.cpp
 	framework/async/MsgChannel.cpp

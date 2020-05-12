@@ -212,11 +212,28 @@ typedef enum {
 	NA_IP
 } netadrtype_t;
 
-typedef struct {
+struct netadr_t {
 	netadrtype_t	type;
 	unsigned char	ip[4];
 	unsigned short	port;
-} netadr_t;
+
+    // assignment operator modifies object, therefore non-const
+    netadr_t& operator=(const netadr_t& a)
+    {
+        type=a.type;
+		for (int i=0; i < 4; i++) {
+			ip[i] = a.ip[i];
+		}
+        port = a.port;
+        return *this;
+    }
+
+    // equality comparison. doesn't modify object. therefore const.
+    bool operator==(const netadr_t& a) const
+    {
+		return (!memcmp(ip, a.ip, sizeof(ip)) && port == a.port && type == a.type);
+    }
+};
 
 #define	PORT_ANY			-1
 

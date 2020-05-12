@@ -32,7 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/math/Vector.h"
 #include "idlib/math/Plane.h"
 #include "idlib/math/Matrix.h"
-#include "renderer/Model.h"
 
 #include "idlib/math/Simd_Generic.h"
 
@@ -2605,88 +2604,6 @@ void VPCALL idSIMD_Generic::DeriveTangents( idPlane *planes, idDrawVert *verts, 
 	}
 }
 
-/*
-============
-idSIMD_Generic::DeriveUnsmoothedTangents
-
-	Derives the normal and orthogonal tangent vectors for the triangle vertices.
-	For each vertex the normal and tangent vectors are derived from a single dominant triangle.
-============
-*/
-#define DERIVE_UNSMOOTHED_BITANGENT
-
-void VPCALL idSIMD_Generic::DeriveUnsmoothedTangents( idDrawVert *verts, const dominantTri_s *dominantTris, const int numVerts ) {
-	int i;
-
-	for ( i = 0; i < numVerts; i++ ) {
-		idDrawVert *a, *b, *c;
-#ifndef DERIVE_UNSMOOTHED_BITANGENT
-		float d3, d8;
-#endif
-		float d0, d1, d2, d4;
-		float d5, d6, d7, d9;
-		float s0, s1, s2;
-		float n0, n1, n2;
-		float t0, t1, t2;
-		float t3, t4, t5;
-
-		const dominantTri_s &dt = dominantTris[i];
-
-		a = verts + i;
-		b = verts + dt.v2;
-		c = verts + dt.v3;
-
-		d0 = b->xyz[0] - a->xyz[0];
-		d1 = b->xyz[1] - a->xyz[1];
-		d2 = b->xyz[2] - a->xyz[2];
-#ifndef DERIVE_UNSMOOTHED_BITANGENT
-		d3 = b->st[0] - a->st[0];
-#endif
-		d4 = b->st[1] - a->st[1];
-
-		d5 = c->xyz[0] - a->xyz[0];
-		d6 = c->xyz[1] - a->xyz[1];
-		d7 = c->xyz[2] - a->xyz[2];
-#ifndef DERIVE_UNSMOOTHED_BITANGENT
-		d8 = c->st[0] - a->st[0];
-#endif
-		d9 = c->st[1] - a->st[1];
-
-		s0 = dt.normalizationScale[0];
-		s1 = dt.normalizationScale[1];
-		s2 = dt.normalizationScale[2];
-
-		n0 = s2 * ( d6 * d2 - d7 * d1 );
-		n1 = s2 * ( d7 * d0 - d5 * d2 );
-		n2 = s2 * ( d5 * d1 - d6 * d0 );
-
-		t0 = s0 * ( d0 * d9 - d4 * d5 );
-		t1 = s0 * ( d1 * d9 - d4 * d6 );
-		t2 = s0 * ( d2 * d9 - d4 * d7 );
-
-#ifndef DERIVE_UNSMOOTHED_BITANGENT
-		t3 = s1 * ( d3 * d5 - d0 * d8 );
-		t4 = s1 * ( d3 * d6 - d1 * d8 );
-		t5 = s1 * ( d3 * d7 - d2 * d8 );
-#else
-		t3 = s1 * ( n2 * t1 - n1 * t2 );
-		t4 = s1 * ( n0 * t2 - n2 * t0 );
-		t5 = s1 * ( n1 * t0 - n0 * t1 );
-#endif
-
-		a->normal[0] = n0;
-		a->normal[1] = n1;
-		a->normal[2] = n2;
-
-		a->tangents[0][0] = t0;
-		a->tangents[0][1] = t1;
-		a->tangents[0][2] = t2;
-
-		a->tangents[1][0] = t3;
-		a->tangents[1][1] = t4;
-		a->tangents[1][2] = t5;
-	}
-}
 
 /*
 ============

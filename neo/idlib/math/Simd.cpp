@@ -48,7 +48,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/bv/Bounds.h"
 #include "idlib/Lib.h"
 #include "framework/Common.h"
-#include "renderer/Model.h"
 
 #include "idlib/math/Simd.h"
 
@@ -2875,82 +2874,6 @@ void TestDeriveTangents( void ) {
 	PrintClocks( va( "   simd->DeriveTangents() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
 }
 
-/*
-============
-TestDeriveUnsmoothedTangents
-============
-*/
-void TestDeriveUnsmoothedTangents( void ) {
-	int i, j;
-	TIME_TYPE start, end, bestClocksGeneric, bestClocksSIMD;
-	ALIGN16( idDrawVert drawVerts1[COUNT] );
-	ALIGN16( idDrawVert drawVerts2[COUNT] );
-	ALIGN16( dominantTri_s dominantTris[COUNT] );
-	const char *result;
-
-	idRandom srnd( RANDOM_SEED );
-
-	for ( i = 0; i < COUNT; i++ ) {
-		for ( j = 0; j < 3; j++ ) {
-			drawVerts1[i].xyz[j] = srnd.CRandomFloat() * 10.0f;
-		}
-		for ( j = 0; j < 2; j++ ) {
-			drawVerts1[i].st[j] = srnd.CRandomFloat();
-		}
-		drawVerts2[i] = drawVerts1[i];
-
-		dominantTris[i].v2 = ( i + 1 + srnd.RandomInt( 8 ) ) % COUNT;
-		dominantTris[i].v3 = ( i + 9 + srnd.RandomInt( 8 ) ) % COUNT;
-		dominantTris[i].normalizationScale[0] = srnd.CRandomFloat();
-		dominantTris[i].normalizationScale[1] = srnd.CRandomFloat();
-		dominantTris[i].normalizationScale[2] = srnd.CRandomFloat();
-	}
-
-	bestClocksGeneric = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_generic->DeriveUnsmoothedTangents( drawVerts1, dominantTris, COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksGeneric );
-	}
-	PrintClocks( "generic->DeriveUnsmoothedTangents()", COUNT, bestClocksGeneric );
-
-	bestClocksSIMD = 0;
-	for ( i = 0; i < NUMTESTS; i++ ) {
-		StartRecordTime( start );
-		p_simd->DeriveUnsmoothedTangents( drawVerts2, dominantTris, COUNT );
-		StopRecordTime( end );
-		GetBest( start, end, bestClocksSIMD );
-	}
-
-	for ( i = 0; i < COUNT; i++ ) {
-		idVec3 v1, v2;
-
-		v1 = drawVerts1[i].normal;
-		v1.Normalize();
-		v2 = drawVerts2[i].normal;
-		v2.Normalize();
-		if ( !v1.Compare( v2, 1e-1f ) ) {
-			break;
-		}
-		v1 = drawVerts1[i].tangents[0];
-		v1.Normalize();
-		v2 = drawVerts2[i].tangents[0];
-		v2.Normalize();
-		if ( !v1.Compare( v2, 1e-1f ) ) {
-			break;
-		}
-		v1 = drawVerts1[i].tangents[1];
-		v1.Normalize();
-		v2 = drawVerts2[i].tangents[1];
-		v2.Normalize();
-		if ( !v1.Compare( v2, 1e-1f ) ) {
-			break;
-		}
-	}
-	result = ( i >= COUNT ) ? "ok" :  S_COLOR_RED "X";
-	PrintClocks( va( "   simd->DeriveUnsmoothedTangents() %s", result ), COUNT, bestClocksSIMD, bestClocksGeneric );
-}
 
 /*
 ============
@@ -4094,7 +4017,6 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	TestOverlayPointCull();
 	TestDeriveTriPlanes();
 	TestDeriveTangents();
-	TestDeriveUnsmoothedTangents();
 	TestNormalizeTangents();
 	TestGetTextureSpaceLightVectors();
 	TestGetSpecularTextureCoords();

@@ -120,7 +120,6 @@ public:
 	virtual void				Quit( void );
 	virtual bool				IsInitialized( void ) const;
 	virtual void				Frame( void );
-	virtual void				GUIFrame( bool execCmd, bool network );
 	virtual void				Async( void );
 	virtual void				StartupVariable( const char *match, bool once );
 	virtual void				InitTool( const toolFlag_t tool, const idDict *dict );
@@ -177,7 +176,6 @@ public:
 
 private:
 	void						InitCommands( void );
-	void						InitRenderSystem( void );
 	void						InitSIMD( void );
 	bool						AddStartupCommands( void );
 	void						ParseCommandLine( int argc, char **argv );
@@ -187,10 +185,6 @@ private:
 	void						WriteConfiguration( void );
 	void						DumpWarnings( void );
 	void						SingleAsyncTic( void );
-	void						LoadGameDLL( void );
-	void						LoadGameDLLbyName( const char *dll, idStr& s );
-	void						UnloadGameDLL( void );
-	void						PrintLoadingMessage( const char *msg );
 	void						FilterLangList( idStrList* list, idStr lang );
 
 	bool						com_fullyInitialized;
@@ -206,8 +200,6 @@ private:
 	idStr						warningCaption;
 	idStrList					warningList;
 	idStrList					errorList;
-
-	uintptr_t					gameDLL;
 
 	idLangDict					languageDict;
 
@@ -236,8 +228,6 @@ idCommonLocal::idCommonLocal( void ) {
 	rd_buffer = NULL;
 	rd_buffersize = 0;
 	rd_flush = NULL;
-
-	gameDLL = 0;
 
 #ifdef ID_WRITE_VERSION
 	config_compressor = NULL;
@@ -2207,34 +2197,6 @@ void idCommonLocal::InitCommands( void ) {
 	cmdSystem->AddCommand( "setMachineSpec", Com_SetMachineSpec_f, CMD_FL_SYSTEM, "detects system capabilities and sets com_machineSpec to appropriate value" );
 	cmdSystem->AddCommand( "execMachineSpec", Com_ExecMachineSpec_f, CMD_FL_SYSTEM, "execs the appropriate config files and sets cvars based on com_machineSpec" );
 
-#if	!defined( ID_DEDICATED )
-	// compilers
-	cmdSystem->AddCommand( "dmap", Dmap_f, CMD_FL_TOOL, "compiles a map", idCmdSystem::ArgCompletion_MapName );
-	cmdSystem->AddCommand( "renderbump", RenderBump_f, CMD_FL_TOOL, "renders a bump map", idCmdSystem::ArgCompletion_ModelName );
-	cmdSystem->AddCommand( "renderbumpFlat", RenderBumpFlat_f, CMD_FL_TOOL, "renders a flat bump map", idCmdSystem::ArgCompletion_ModelName );
-	cmdSystem->AddCommand( "runAAS", RunAAS_f, CMD_FL_TOOL, "compiles an AAS file for a map", idCmdSystem::ArgCompletion_MapName );
-	cmdSystem->AddCommand( "runAASDir", RunAASDir_f, CMD_FL_TOOL, "compiles AAS files for all maps in a folder", idCmdSystem::ArgCompletion_MapName );
-	cmdSystem->AddCommand( "runReach", RunReach_f, CMD_FL_TOOL, "calculates reachability for an AAS file", idCmdSystem::ArgCompletion_MapName );
-	cmdSystem->AddCommand( "roq", RoQFileEncode_f, CMD_FL_TOOL, "encodes a roq file" );
-#endif
-
-#ifdef ID_ALLOW_TOOLS
-	// editors
-	cmdSystem->AddCommand( "editor", Com_Editor_f, CMD_FL_TOOL, "launches the level editor Radiant" );
-	cmdSystem->AddCommand( "editLights", Com_EditLights_f, CMD_FL_TOOL, "launches the in-game Light Editor" );
-	cmdSystem->AddCommand( "editSounds", Com_EditSounds_f, CMD_FL_TOOL, "launches the in-game Sound Editor" );
-	cmdSystem->AddCommand( "editDecls", Com_EditDecls_f, CMD_FL_TOOL, "launches the in-game Declaration Editor" );
-	cmdSystem->AddCommand( "editAFs", Com_EditAFs_f, CMD_FL_TOOL, "launches the in-game Articulated Figure Editor" );
-	cmdSystem->AddCommand( "editParticles", Com_EditParticles_f, CMD_FL_TOOL, "launches the in-game Particle Editor" );
-	cmdSystem->AddCommand( "editScripts", Com_EditScripts_f, CMD_FL_TOOL, "launches the in-game Script Editor" );
-	cmdSystem->AddCommand( "editGUIs", Com_EditGUIs_f, CMD_FL_TOOL, "launches the GUI Editor" );
-	cmdSystem->AddCommand( "editPDAs", Com_EditPDAs_f, CMD_FL_TOOL, "launches the in-game PDA Editor" );
-	cmdSystem->AddCommand( "debugger", Com_ScriptDebugger_f, CMD_FL_TOOL, "launches the Script Debugger" );
-
-	//BSM Nerve: Add support for the material editor
-	cmdSystem->AddCommand( "materialEditor", Com_MaterialEditor_f, CMD_FL_TOOL, "launches the Material Editor" );
-#endif
-
 	cmdSystem->AddCommand( "printMemInfo", PrintMemInfo_f, CMD_FL_SYSTEM, "prints memory debugging data" );
 
 	// idLib commands
@@ -2259,31 +2221,7 @@ void idCommonLocal::InitCommands( void ) {
 	cmdSystem->AddCommand( "startBuild", Com_StartBuild_f, CMD_FL_SYSTEM|CMD_FL_CHEAT, "prepares to make a build" );
 	cmdSystem->AddCommand( "finishBuild", Com_FinishBuild_f, CMD_FL_SYSTEM|CMD_FL_CHEAT, "finishes the build process" );
 
-#ifdef ID_DEDICATED
 	cmdSystem->AddCommand( "help", Com_Help_f, CMD_FL_SYSTEM, "shows help" );
-#endif
-}
-
-/*
-=================
-idCommonLocal::InitRenderSystem
-=================
-*/
-void idCommonLocal::InitRenderSystem( void ) {
-	if ( com_skipRenderer.GetBool() ) {
-		return;
-	}
-
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04343" ) );
-}
-
-/*
-=================
-idCommonLocal::PrintLoadingMessage
-=================
-*/
-void idCommonLocal::PrintLoadingMessage( const char *msg ) {
-
 }
 
 /*
@@ -2344,19 +2282,6 @@ void idCommonLocal::Frame( void ) {
 	}
 }
 
-/*
-=================
-idCommonLocal::GUIFrame
-=================
-*/
-void idCommonLocal::GUIFrame( bool execCmd, bool network ) {
-	Sys_GenerateEvents();
-	eventLoop->RunEventLoop( execCmd );	// and execute any commands
-	com_frameTime = com_ticNumber * USERCMD_MSEC;
-	if ( network ) {
-		idAsyncNetwork::RunFrame();
-	}
-}
 
 /*
 =================
@@ -2452,35 +2377,6 @@ void idCommonLocal::Async( void ) {
 		SingleAsyncTic();
 		lastTicMsec += ticMsec;
 	}
-}
-
-/*
-=================
-idCommonLocal::LoadGameDLLbyName
-
-Helper for LoadGameDLL() to make it less painfull to try different dll names.
-=================
-*/
-void idCommonLocal::LoadGameDLLbyName( const char *dll, idStr& s ) {
-
-}
-
-/*
-=================
-idCommonLocal::LoadGameDLL
-=================
-*/
-void idCommonLocal::LoadGameDLL( void ) {
-
-}
-
-/*
-=================
-idCommonLocal::UnloadGameDLL
-=================
-*/
-void idCommonLocal::UnloadGameDLL( void ) {
-
 }
 
 /*
@@ -2582,17 +2478,7 @@ static bool checkForHelp(int argc, char **argv)
 				WriteString("  set path to your Doom3 game data (the directory base/ is in)\n");
 				WriteString("+set fs_game <modname>\n");
 				WriteString("  start the given addon/mod, e.g. +set fs_game d3xp\n");
-#ifndef ID_DEDICATED
-				WriteString("+set r_fullscreen <0 or 1>\n");
-				WriteString("  start game in windowed (0) or fullscreen (1) mode\n");
-				WriteString("+set r_mode <modenumber>\n");
-				WriteString("  start game in resolution belonging to <modenumber>,\n");
-				WriteString("  use -1 for custom resolutions:\n");
-				WriteString("+set r_customWidth  <size in pixels>\n");
-				WriteString("+set r_customHeight <size in pixels>\n");
-				WriteString("  if r_mode is set to -1, these cvars allow you to specify the\n");
-				WriteString("  width/height of your custom resolution\n");
-#endif // !ID_DEDICATED
+
 				WriteString("\nSee https://modwiki.xnet.fi/CVars_%%28Doom_3%%29 for more cvars\n");
 				WriteString("See https://modwiki.xnet.fi/Commands_%%28Doom_3%%29 for more commands\n");
 
@@ -2722,9 +2608,7 @@ void idCommonLocal::Init( int argc, char **argv ) {
 		// print all warnings queued during initialization
 		PrintWarnings();
 
-#ifdef	ID_DEDICATED
-		Printf( "\nType 'help' for dedicated server info.\n\n" );
-#endif
+		Printf( "\nType 'help' for master server info.\n\n" );
 
 		// remove any prints from the notify lines
 		console->ClearNotifyLines();
@@ -2760,7 +2644,6 @@ void idCommonLocal::Shutdown( void ) {
 	}
 
 	idAsyncNetwork::server.Kill();
-	idAsyncNetwork::client.Shutdown();
 
 	// save persistent console history
 	console->SaveHistory();
@@ -2837,25 +2720,11 @@ void idCommonLocal::InitGame( void ) {
 	// initialize string database right off so we can use it for loading messages
 	InitLanguageDict();
 
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04344" ) );
-
 	// load the font, etc
 	console->LoadGraphics();
 
 	// init journalling, etc
 	eventLoop->Init();
-
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04345" ) );
-
-	// exec the startup scripts
-	cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "exec editor.cfg\n" );
-	cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "exec default.cfg\n" );
-
-	// skip the config file if "safe" is on the command line
-	if ( !SafeMode() ) {
-		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "exec " CONFIG_FILE "\n" );
-	}
-	cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "exec autoexec.cfg\n" );
 
 	// reload the language dictionary now that we've loaded config files
 	cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "reloadLanguage\n" );
@@ -2872,33 +2741,11 @@ void idCommonLocal::InitGame( void ) {
 	// init the user command input code
 	usercmdGen->Init();
 
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04346" ) );
-
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04347" ) );
-
 	// init async network
 	idAsyncNetwork::Init();
 
-#ifdef	ID_DEDICATED
 	idAsyncNetwork::server.InitPort();
 	cvarSystem->SetCVarBool( "s_noSound", true );
-#else
-	if ( idAsyncNetwork::serverDedicated.GetInteger() == 1 ) {
-		idAsyncNetwork::server.InitPort();
-		cvarSystem->SetCVarBool( "s_noSound", true );
-	} else {
-		// init OpenGL, which will open a window and connect sound and input hardware
-		PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04348" ) );
-		InitRenderSystem();
-	}
-#endif
-
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04349" ) );
-
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04350" ) );
-
-	PrintLoadingMessage( common->GetLanguageDict()->GetString( "#str_04351" ) );
-
 }
 
 /*
@@ -2910,8 +2757,6 @@ void idCommonLocal::ShutdownGame( bool reloading ) {
 
 	// shutdown the script debugger
 	// DebuggerServerShutdown();
-
-	idAsyncNetwork::client.Shutdown();
 
 	// shut down async networking
 	idAsyncNetwork::Shutdown();

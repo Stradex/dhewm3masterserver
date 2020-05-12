@@ -165,7 +165,7 @@ idAsyncClient::HandleGuiCommand
 ==================
 */
 const char* idAsyncClient::HandleGuiCommand( const char *cmd ) {
-	return idAsyncNetwork::client.HandleGuiCommandInternal( cmd );
+	return "";
 }
 
 /*

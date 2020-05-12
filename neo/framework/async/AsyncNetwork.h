@@ -31,7 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/BitMsg.h"
 #include "framework/async/MsgChannel.h"
-#include "framework/async/AsyncClient.h"
+#include "framework/async/ServerScan.h"
+#include "framework/FileSystem.h"
 #include "framework/async/AsyncServer.h"
 #include "framework/Compressor.h"
 #include "framework/Licensee.h"
@@ -118,7 +119,7 @@ public:
 
 	static void				Init( void );
 	static void				Shutdown( void );
-	static bool				IsActive( void ) { return ( server.IsActive() || client.IsActive() ); }
+	static bool				IsActive( void ) { return ( server.IsActive() ); }
 	static void				RunFrame( void );
 
 	static void				WriteUserCmdDelta( idBitMsg &msg, const usercmd_t &cmd, const usercmd_t *base );
@@ -137,7 +138,6 @@ public:
 	static void				ExecuteSessionCommand( const char *sessCmd );
 
 	static idAsyncServer	server;
-	static idAsyncClient	client;
 
 	static idCVar			verbose;						// verbose output
 	static idCVar			allowCheats;					// allow cheats
@@ -174,18 +174,11 @@ private:
 	static int				realTime;
 	static master_t			masters[ MAX_MASTER_SERVERS];	// master1 etc.
 
-	static void				SpawnServer_f( const idCmdArgs &args );
-	static void				NextMap_f( const idCmdArgs &args );
-	static void				Connect_f( const idCmdArgs &args );
-	static void				Reconnect_f( const idCmdArgs &args );
-	static void				GetServerInfo_f( const idCmdArgs &args );
-	static void				GetLANServers_f( const idCmdArgs &args );
-	static void				ListServers_f( const idCmdArgs &args );
 	static void				RemoteConsole_f( const idCmdArgs &args );
-	static void				Heartbeat_f( const idCmdArgs &args );
-	static void				Kick_f( const idCmdArgs &args );
 	static void				CheckNewVersion_f( const idCmdArgs &args );
 	static void				UpdateUI_f( const idCmdArgs &args );
+	static void				StartMasterServer_f( const idCmdArgs &args );
+	static void				StopMasterServer_f( const idCmdArgs &args );
 };
 
 #endif /* !__ASYNCNETWORK_H__ */
