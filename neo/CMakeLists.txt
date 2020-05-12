@@ -46,10 +46,7 @@ set(DHEWM3BINARY "dhewm3")
 include(CheckCXXCompilerFlag)
 include(GNUInstallDirs OPTIONAL RESULT_VARIABLE GNUINSTALLDIRS)
 
-option(CORE			"Build the core" ON)
-option(BASE			"Build the base game code" ON)
-option(D3XP			"Build the d3xp game code" ON)
-option(DEDICATED	"Build the dedicated server" OFF)
+option(DEDICATED	"Build the master server" ON)
 option(ONATIVE		"Optimize for the host CPU" OFF)
 option(SDL2			"Use SDL2 instead of SDL1.2" ON)
 
@@ -514,60 +511,6 @@ if(DEDICATED)
 
 	if(NOT APPLE AND NOT WIN32)
 		install(TARGETS ${DHEWM3BINARY}masterserver
-				RUNTIME DESTINATION "${bindir}"
-				LIBRARY DESTINATION "${libdir}"
-				ARCHIVE DESTINATION "${libdir}"
-		)
-	endif()
-endif()
-
-if(BASE)
-	if (AROS)
-		add_executable(base sys/aros/dll/dllglue.c ${src_game})
-		set_target_properties(base PROPERTIES OUTPUT_NAME "base.aros-${AROS_ARCH}")
-	else()
-		add_library(base SHARED ${src_game})
-	endif()
-	set_target_properties(base PROPERTIES PREFIX "")
-	set_target_properties(base PROPERTIES COMPILE_DEFINITIONS "GAME_DLL")
-	set_target_properties(base PROPERTIES COMPILE_FLAGS "-I${CMAKE_SOURCE_DIR}/game")
-	set_target_properties(base PROPERTIES LINK_FLAGS "${ldflags}")
-	set_target_properties(base PROPERTIES INSTALL_NAME_DIR "@executable_path")
-	if (AROS)
-		target_link_libraries(base idlib dll)
-	else()
-		target_link_libraries(base idlib)
-	endif()
-
-	if(NOT APPLE AND NOT WIN32)
-		install(TARGETS base
-				RUNTIME DESTINATION "${bindir}"
-				LIBRARY DESTINATION "${libdir}"
-				ARCHIVE DESTINATION "${libdir}"
-		)
-	endif()
-endif()
-
-if(D3XP)
-	if (AROS)
-		add_executable(d3xp sys/aros/dll/dllglue.c ${src_d3xp})
-		set_target_properties(d3xp PROPERTIES OUTPUT_NAME "d3xp.aros-${AROS_ARCH}")
-	else()
-		add_library(d3xp SHARED ${src_d3xp})
-	endif()
-	set_target_properties(d3xp PROPERTIES PREFIX "")
-	set_target_properties(d3xp PROPERTIES COMPILE_DEFINITIONS "GAME_DLL;_D3XP;CTF")
-	set_target_properties(d3xp PROPERTIES COMPILE_FLAGS "-I${CMAKE_SOURCE_DIR}/d3xp")
-	set_target_properties(d3xp PROPERTIES LINK_FLAGS "${ldflags}")
-	set_target_properties(d3xp PROPERTIES INSTALL_NAME_DIR "@executable_path")
-	if (AROS)
-		target_link_libraries(d3xp idlib dll)
-	else()
-		target_link_libraries(d3xp idlib)
-	endif()
-
-	if(NOT APPLE AND NOT WIN32)
-		install(TARGETS d3xp
 				RUNTIME DESTINATION "${bindir}"
 				LIBRARY DESTINATION "${libdir}"
 				ARCHIVE DESTINATION "${libdir}"
