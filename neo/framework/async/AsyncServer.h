@@ -176,7 +176,6 @@ public:
 	void				UpdateAsyncStatsAvg( void );
 	void				GetAsyncStatsAvgMsg( idStr &msg );
 
-	void				PrintLocalServerInfo( void );
 	bool				ConnectionlessMessage( const netadr_t from, const idBitMsg &msg );
 	bool				active;						// true if server is active
 
@@ -218,8 +217,6 @@ private:
 	int					stats_max;
 	int					stats_max_index;
 
-	void				PrintOOB( const netadr_t to, int opcode, const char *string );
-	void				SendPrintBroadcast( const char *string );
 	bool				ProcessMessage( const netadr_t from, idBitMsg &msg );
 	bool				ProcessHeartbeatMessage( const netadr_t from );
 	void				ProcessRequestServersMessage( const netadr_t from, const idBitMsg &msg );

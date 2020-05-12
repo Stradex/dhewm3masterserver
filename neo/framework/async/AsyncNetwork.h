@@ -122,21 +122,6 @@ public:
 	static bool				IsActive( void ) { return ( server.IsActive() ); }
 	static void				RunFrame( void );
 
-	static void				WriteUserCmdDelta( idBitMsg &msg, const usercmd_t &cmd, const usercmd_t *base );
-	static void				ReadUserCmdDelta( const idBitMsg &msg, usercmd_t &cmd, const usercmd_t *base );
-
-	static bool				DuplicateUsercmd( const usercmd_t &previousUserCmd, usercmd_t &currentUserCmd, int frame, int time );
-	static bool				UsercmdInputChanged( const usercmd_t &previousUserCmd, const usercmd_t &currentUserCmd );
-
-							// returns true if the corresponding master is set to something (and could be resolved)
-	static bool				GetMasterAddress( int index, netadr_t &adr );
-							// get the hardcoded idnet master, equivalent to GetMasterAddress( 0, .. )
-	static netadr_t			GetMasterAddress( void );
-
-	static void				GetNETServers( );
-
-	static void				ExecuteSessionCommand( const char *sessCmd );
-
 	static idAsyncServer	server;
 
 	static idCVar			verbose;						// verbose output
@@ -174,9 +159,6 @@ private:
 	static int				realTime;
 	static master_t			masters[ MAX_MASTER_SERVERS];	// master1 etc.
 
-	static void				RemoteConsole_f( const idCmdArgs &args );
-	static void				CheckNewVersion_f( const idCmdArgs &args );
-	static void				UpdateUI_f( const idCmdArgs &args );
 	static void				StartMasterServer_f( const idCmdArgs &args );
 	static void				StopMasterServer_f( const idCmdArgs &args );
 };

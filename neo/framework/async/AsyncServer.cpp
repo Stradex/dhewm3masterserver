@@ -37,20 +37,6 @@ const int NOINPUT_IDLE_TIME				= 30000;
 
 const int HEARTBEAT_MSEC				= 5*60*1000;
 
-// must be kept in sync with authReplyMsg_t
-const char* authReplyMsg[] = {
-	//	"Waiting for authorization",
-	"#str_07204",
-	//	"Client unknown to auth",
-	"#str_07205",
-	//	"Access denied - CD Key in use",
-	"#str_07206",
-	//	"Auth custom message", // placeholder - we propagate a message from the master
-	"#str_07207",
-	//	"Authorize Server - Waiting for client"
-	"#str_07208"
-};
-
 const char* authReplyStr[] = {
 	"AUTH_NONE",
 	"AUTH_OK",
@@ -211,34 +197,6 @@ int idAsyncServer::GetIncomingRate( void ) const {
 }
 
 
-/*
-==================
-idAsyncServer::RemoteConsoleOutput
-==================
-*/
-void idAsyncServer::RemoteConsoleOutput( const char *string ) {
-	noRconOutput = false;
-	PrintOOB( rconAddress, SERVER_PRINT_RCON, string );
-}
-
-/*
-==================
-RConRedirect
-==================
-*/
-void RConRedirect( const char *string ) {
-	idAsyncNetwork::server.RemoteConsoleOutput( string );
-}
-
-/*
-===============
-idAsyncServer::PrintLocalServerInfo
-see (client) "getInfo" -> (server) "infoResponse" -> (client)ProcessGetInfoMessage
-===============
-*/
-void idAsyncServer::PrintLocalServerInfo( void ) {
-
-}
 
 /*
 ==================
@@ -330,23 +288,6 @@ void idAsyncServer::RunFrame( void ) {
 	} while( gameTimeResidual < USERCMD_MSEC );
 
 	idAsyncNetwork::serverMaxClientRate.ClearModified();
-}
-
-/*
-==================
-idAsyncServer::PrintOOB
-==================
-*/
-void idAsyncServer::PrintOOB( const netadr_t to, int opcode, const char *string ) {
-	idBitMsg	outMsg;
-	byte		msgBuf[ MAX_MESSAGE_SIZE ];
-
-	outMsg.Init( msgBuf, sizeof( msgBuf ) );
-	outMsg.WriteShort( CONNECTIONLESS_MESSAGE_ID );
-	outMsg.WriteString( "print" );
-	outMsg.WriteInt( opcode );
-	outMsg.WriteString( string );
-	serverPort.SendPacket( to, outMsg.GetData(), outMsg.GetSize() );
 }
 
 
