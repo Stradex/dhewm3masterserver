@@ -325,7 +325,6 @@ set(src_framework
 	framework/async/AsyncServer.cpp
 	framework/async/MsgChannel.cpp
 	framework/async/NetworkSystem.cpp
-	framework/async/ServerScan.cpp
 	framework/minizip/ioapi.c
 	framework/minizip/unzip.cpp
 )
