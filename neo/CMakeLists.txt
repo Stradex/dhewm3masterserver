@@ -492,48 +492,15 @@ else()
 	endif()
 endif()
 
-if(CORE)
-	add_executable(${DHEWM3BINARY} WIN32 MACOSX_BUNDLE
-		${src_core}
-		${src_sys_base}
-		${src_sys_core}
-	)
-
-	set_target_properties(${DHEWM3BINARY} PROPERTIES COMPILE_DEFINITIONS "__DOOM_DLL__")
-	set_target_properties(${DHEWM3BINARY} PROPERTIES LINK_FLAGS "${ldflags}")
-	set_target_properties(${DHEWM3BINARY} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${PROJECT_SOURCE_DIR}/sys/osx/Info.plist)
-
-	target_link_libraries(${DHEWM3BINARY}
-		idlib
-		${OPENAL_LIBRARY}
-		${VORBISFILE_LIBRARIES}
-		${VORBIS_LIBRARIES}
-		${OGG_LIBRARIES}
-		${CURL_LIBRARY}
-		${JPEG_LIBRARY}
-		${ZLIB_LIBRARY}
-		${SDLx_LIBRARY}
-		${sys_libs}
-	)
-
-	if(NOT APPLE AND NOT WIN32)
-		install(TARGETS ${DHEWM3BINARY}
-				RUNTIME DESTINATION "${bindir}"
-				LIBRARY DESTINATION "${libdir}"
-				ARCHIVE DESTINATION "${libdir}"
-		)
-	endif()
-endif()
-
 if(DEDICATED)
-	add_executable(${DHEWM3BINARY}ded WIN32 MACOSX_BUNDLE
+	add_executable(${DHEWM3BINARY}masterserver WIN32 MACOSX_BUNDLE
 		${src_core}
 		${src_sys_base}
 	)
 
-	set_target_properties(${DHEWM3BINARY}ded PROPERTIES COMPILE_DEFINITIONS "ID_DEDICATED;__DOOM_DLL__")
-	set_target_properties(${DHEWM3BINARY}ded PROPERTIES LINK_FLAGS "${ldflags}")
-	target_link_libraries(${DHEWM3BINARY}ded
+	set_target_properties(${DHEWM3BINARY}masterserver PROPERTIES COMPILE_DEFINITIONS "ID_DEDICATED;__DOOM_DLL__")
+	set_target_properties(${DHEWM3BINARY}masterserver PROPERTIES LINK_FLAGS "${ldflags}")
+	target_link_libraries(${DHEWM3BINARY}masterserver
 		idlib
 		${VORBISFILE_LIBRARIES}
 		${VORBIS_LIBRARIES}
@@ -546,7 +513,7 @@ if(DEDICATED)
 	)
 
 	if(NOT APPLE AND NOT WIN32)
-		install(TARGETS ${DHEWM3BINARY}ded
+		install(TARGETS ${DHEWM3BINARY}masterserver
 				RUNTIME DESTINATION "${bindir}"
 				LIBRARY DESTINATION "${libdir}"
 				ARCHIVE DESTINATION "${libdir}"
