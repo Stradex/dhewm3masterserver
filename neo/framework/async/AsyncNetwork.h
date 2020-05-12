@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/BitMsg.h"
 #include "framework/async/MsgChannel.h"
-#include "framework/async/ServerScan.h"
 #include "framework/FileSystem.h"
 #include "framework/async/AsyncServer.h"
 #include "framework/Compressor.h"

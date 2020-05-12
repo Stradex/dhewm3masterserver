@@ -299,37 +299,9 @@ static int GetHomeDir(char *dst, size_t size)
 	return len;
 }
 
-static int GetRegistryPath(char *dst, size_t size, const WCHAR *subkey, const WCHAR *name) {
-	WCHAR w[MAX_OSPATH];
-	DWORD len = sizeof(w);
-	HKEY res;
-	DWORD sam = KEY_QUERY_VALUE
-#ifdef _WIN64
-		| KEY_WOW64_32KEY
-#endif
-		;
-	DWORD type;
-
-	if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, subkey, 0, sam, &res) != ERROR_SUCCESS)
-		return 0;
-
-	if (RegQueryValueExW(res, name, NULL, &type, (LPBYTE)w, &len) != ERROR_SUCCESS) {
-		RegCloseKey(res);
-		return 0;
-	}
-
-	RegCloseKey(res);
-
-	if (type != REG_SZ)
-		return 0;
-
-	return WPath2A(dst, size, w);
-}
 
 bool Sys_GetPath(sysPath_t type, idStr &path) {
 	char buf[MAX_OSPATH];
-	struct _stat st;
-	idStr s;
 
 	switch(type) {
 	case PATH_BASE:
@@ -607,54 +579,14 @@ typedef enum D3_PROCESS_DPI_AWARENESS {
 	D3_PROCESS_PER_MONITOR_DPI_AWARE = 2
 } YQ2_PROCESS_DPI_AWARENESS;
 
-static void setHighDPIMode(void)
-{
-	/* For Vista, Win7 and Win8 */
-	BOOL(WINAPI *SetProcessDPIAware)(void) = NULL;
-
-	/* Win8.1 and later */
-	HRESULT(WINAPI *SetProcessDpiAwareness)(D3_PROCESS_DPI_AWARENESS dpiAwareness) = NULL;
-
-
-	HINSTANCE userDLL = LoadLibrary("USER32.DLL");
-
-	if (userDLL)
-	{
-		SetProcessDPIAware = (BOOL(WINAPI *)(void)) GetProcAddress(userDLL, "SetProcessDPIAware");
-	}
-
-
-	HINSTANCE shcoreDLL = LoadLibrary("SHCORE.DLL");
-
-	if (shcoreDLL)
-	{
-		SetProcessDpiAwareness = (HRESULT(WINAPI *)(YQ2_PROCESS_DPI_AWARENESS))
-									GetProcAddress(shcoreDLL, "SetProcessDpiAwareness");
-	}
-
-
-	if (SetProcessDpiAwareness) {
-		SetProcessDpiAwareness(D3_PROCESS_PER_MONITOR_DPI_AWARE);
-	}
-	else if (SetProcessDPIAware) {
-		SetProcessDPIAware();
-	}
-}
-
 /*
 ==================
 WinMain
 ==================
 */
 int main(int argc, char *argv[]) {
-	const HCURSOR hcurSave = ::SetCursor( LoadCursor( 0, IDC_WAIT ) );
 
-#ifdef ID_DEDICATED
 	MSG msg;
-#else
-	// tell windows we're high dpi aware, otherwise display scaling screws up the game
-	setHighDPIMode();
-#endif
 
 	Sys_SetPhysicalWorkMemory( 192 << 20, 1024 << 20 );
 
@@ -701,7 +633,6 @@ int main(int argc, char *argv[]) {
 
 	// main game loop
 	while( 1 ) {
-#if ID_DEDICATED
 		// Since this is a Dedicated Server, process all Windowing Messages
 		// Now.
 		while(PeekMessage (&msg, NULL, 0, 0, PM_REMOVE)){
@@ -711,55 +642,9 @@ int main(int argc, char *argv[]) {
 
 		// Give the OS a little time to recuperate.
 		Sleep(10);
-#endif
 
 		Win_Frame();
 
-#ifdef ID_ALLOW_TOOLS
-		if ( com_editors ) {
-			if ( com_editors & EDITOR_GUI ) {
-				// GUI editor
-				GUIEditorRun();
-			} else if ( com_editors & EDITOR_RADIANT ) {
-				// Level Editor
-				RadiantRun();
-			}
-			else if (com_editors & EDITOR_MATERIAL ) {
-				//BSM Nerve: Add support for the material editor
-				MaterialEditorRun();
-			}
-			else {
-				if ( com_editors & EDITOR_LIGHT ) {
-					// in-game Light Editor
-					LightEditorRun();
-				}
-				if ( com_editors & EDITOR_SOUND ) {
-					// in-game Sound Editor
-					SoundEditorRun();
-				}
-				if ( com_editors & EDITOR_DECL ) {
-					// in-game Declaration Browser
-					DeclBrowserRun();
-				}
-				if ( com_editors & EDITOR_AF ) {
-					// in-game Articulated Figure Editor
-					AFEditorRun();
-				}
-				if ( com_editors & EDITOR_PARTICLE ) {
-					// in-game Particle Editor
-					ParticleEditorRun();
-				}
-				if ( com_editors & EDITOR_SCRIPT ) {
-					// in-game Script Editor
-					ScriptEditorRun();
-				}
-				if ( com_editors & EDITOR_PDA ) {
-					// in-game PDA Editor
-					PDAEditorRun();
-				}
-			}
-		}
-#endif
 		// run the game
 		common->Frame();
 	}
