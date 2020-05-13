@@ -331,18 +331,6 @@ set(src_framework
 
 
 set(src_idlib
-	idlib/bv/Bounds.cpp
-	idlib/bv/Frustum.cpp
-	idlib/bv/Sphere.cpp
-	idlib/bv/Box.cpp
-	idlib/geometry/DrawVert.cpp
-	idlib/geometry/Winding2D.cpp
-	idlib/geometry/Surface_SweptSpline.cpp
-	idlib/geometry/Winding.cpp
-	idlib/geometry/Surface.cpp
-	idlib/geometry/Surface_Patch.cpp
-	idlib/geometry/TraceModel.cpp
-	idlib/geometry/JointTransform.cpp
 	idlib/hashing/CRC32.cpp
 	idlib/hashing/MD4.cpp
 	idlib/hashing/MD5.cpp
@@ -373,7 +361,6 @@ set(src_idlib
 	idlib/Dict.cpp
 	idlib/Str.cpp
 	idlib/Parser.cpp
-	idlib/MapFile.cpp
 	idlib/CmdArgs.cpp
 	idlib/Token.cpp
 	idlib/Base64.cpp

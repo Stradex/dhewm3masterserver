@@ -27,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "sys/platform.h"
-#include "idlib/geometry/JointTransform.h"
 #include "framework/Licensee.h"
 #include "framework/FileSystem.h"
 

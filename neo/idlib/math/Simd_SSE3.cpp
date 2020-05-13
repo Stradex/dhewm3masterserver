@@ -51,8 +51,6 @@ const char * idSIMD_SSE3::GetName( void ) const {
 
 #include <xmmintrin.h>
 
-#include "idlib/geometry/JointTransform.h"
-#include "idlib/geometry/DrawVert.h"
 #include "idlib/math/Vector.h"
 
 #define SHUFFLEPS( x, y, z, w )		(( (x) & 3 ) << 6 | ( (y) & 3 ) << 4 | ( (z) & 3 ) << 2 | ( (w) & 3 ))
@@ -261,105 +259,5 @@ const char * idSIMD_SSE3::GetName( void ) const {
 	return "MMX & SSE & SSE2 & SSE3";
 }
 
-/*
-============
-idSIMD_SSE3::TransformVerts
-============
-*/
-void VPCALL idSIMD_SSE3::TransformVerts( idDrawVert *verts, const int numVerts, const idJointMat *joints, const idVec4 *weights, const int *index, const int numWeights ) {
-#if 1
-
-	assert( sizeof( idDrawVert ) == DRAWVERT_SIZE );
-	assert( (int)&((idDrawVert *)0)->xyz == DRAWVERT_XYZ_OFFSET );
-	assert( sizeof( idVec4 ) == JOINTWEIGHT_SIZE );
-	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-
-	__asm
-	{
-		mov			eax, numVerts
-		test		eax, eax
-		jz			done
-		imul		eax, DRAWVERT_SIZE
-
-		mov			ecx, verts
-		mov			edx, index
-		mov			esi, weights
-		mov			edi, joints
-
-		add			ecx, eax
-		neg			eax
-
-	loopVert:
-		mov			ebx, [edx]
-		movaps		xmm2, [esi]
-		add			edx, 8
-		movaps		xmm0, xmm2
-		add			esi, JOINTWEIGHT_SIZE
-		movaps		xmm1, xmm2
-
-		mulps		xmm0, [edi+ebx+ 0]						// xmm0 = m0, m1, m2, t0
-		mulps		xmm1, [edi+ebx+16]						// xmm1 = m3, m4, m5, t1
-		mulps		xmm2, [edi+ebx+32]						// xmm2 = m6, m7, m8, t2
-
-		cmp			dword ptr [edx-4], 0
-
-		jne			doneWeight
-
-	loopWeight:
-		mov			ebx, [edx]
-		movaps		xmm5, [esi]
-		add			edx, 8
-		movaps		xmm3, xmm5
-		add			esi, JOINTWEIGHT_SIZE
-		movaps		xmm4, xmm5
-
-		mulps		xmm3, [edi+ebx+ 0]						// xmm3 = m0, m1, m2, t0
-		mulps		xmm4, [edi+ebx+16]						// xmm4 = m3, m4, m5, t1
-		mulps		xmm5, [edi+ebx+32]						// xmm5 = m6, m7, m8, t2
-
-		cmp			dword ptr [edx-4], 0
-
-		addps		xmm0, xmm3
-		addps		xmm1, xmm4
-		addps		xmm2, xmm5
-
-		je			loopWeight
-
-	doneWeight:
-		add			eax, DRAWVERT_SIZE
-
-		haddps(		_xmm0, _xmm1 )
-		haddps(		_xmm2, _xmm0 )
-
-		movhps		[ecx+eax-DRAWVERT_SIZE+0], xmm2
-
-		haddps(		_xmm2, _xmm2 )
-
-		movss		[ecx+eax-DRAWVERT_SIZE+8], xmm2
-
-		jl			loopVert
-	done:
-	}
-
-#else
-
-	int i, j;
-	const byte *jointsPtr = (byte *)joints;
-
-	for( j = i = 0; i < numVerts; i++ ) {
-		idVec3 v;
-
-		v = ( *(idJointMat *) ( jointsPtr + index[j*2+0] ) ) * weights[j];
-		while( index[j*2+1] == 0 ) {
-			j++;
-			v += ( *(idJointMat *) ( jointsPtr + index[j*2+0] ) ) * weights[j];
-		}
-		j++;
-
-		verts[i].xyz = v;
-	}
-
-#endif
-}
 
 #endif /* _MSC_VER */

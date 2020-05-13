@@ -243,7 +243,6 @@ void VPCALL idSIMD_SSE2::CmpLT( byte *dst, const byte bitNum, const float *src0,
 
 #include <xmmintrin.h>
 
-#include "idlib/geometry/JointTransform.h"
 #include "idlib/math/Math.h"
 
 #define SHUFFLEPS( x, y, z, w )		(( (x) & 3 ) << 6 | ( (y) & 3 ) << 4 | ( (z) & 3 ) << 2 | ( (w) & 3 ))
