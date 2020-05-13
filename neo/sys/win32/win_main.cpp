@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "framework/async/AsyncNetwork.h"
 #include "framework/Licensee.h"
 #include "framework/UsercmdGen.h"
-#include "sys/win32/rc/CreateResourceIDs.h"
 #include "sys/sys_local.h"
 
 #include "sys/win32/win_local.h"

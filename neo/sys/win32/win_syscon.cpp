@@ -31,8 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "framework/Common.h"
 #include "framework/KeyInput.h"
 #include "framework/EditField.h"
-#include "sys/win32/rc/AFEditor_resource.h"
-#include "sys/win32/rc/doom_resource.h"
 
 #include "sys/win32/win_local.h"
 
@@ -305,7 +303,7 @@ void Sys_CreateConsole( void ) {
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = win32.hInstance;
-	wc.hIcon         = LoadIcon( win32.hInstance, MAKEINTRESOURCE(IDI_ICON1));
+	//wc.hIcon         = LoadIcon( win32.hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
 	wc.hbrBackground = (struct HBRUSH__ *)COLOR_WINDOW;
 	wc.lpszMenuName  = 0;

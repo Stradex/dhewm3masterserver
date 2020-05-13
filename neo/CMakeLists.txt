@@ -406,9 +406,6 @@ if(AROS)
 		sys/aros/aros_dos.cpp
 	)
 
-	set(src_sys_core
-		sys/glimp.cpp
-	)
 elseif(APPLE)
 	set(OSX_RESOURCE_FILES
 		"${CMAKE_SOURCE_DIR}/sys/osx/Doom3.icns"
@@ -426,17 +423,7 @@ elseif(APPLE)
 		sys/posix/posix_main.cpp
 	)
 
-	set(src_sys_core
-		sys/glimp.cpp
-		sys/osx/DOOMController.mm
-		sys/osx/macosx_misc.mm
-		sys/osx/SDLMain.m
-		${OSX_RESOURCE_FILES}
-	)
 elseif(WIN32)
-	set(WIN32_RESOURCE_FILES
-		"${CMAKE_SOURCE_DIR}/sys/win32/rc/dhewm3.rc"
-	)
 
 	set(src_sys_base
 		sys/cpu.cpp
@@ -450,11 +437,6 @@ elseif(WIN32)
 		sys/win32/win_syscon.cpp
 		sys/win32/SDL_win32_main.c
 	)
-
-	set(src_sys_core
-		sys/glimp.cpp
-		${WIN32_RESOURCE_FILES}
-	)
 else()
 	set(src_sys_base
 		sys/cpu.cpp
@@ -464,10 +446,6 @@ else()
 		sys/posix/posix_net.cpp
 		sys/posix/posix_main.cpp
 		sys/linux/main.cpp
-	)
-
-	set(src_sys_core
-		sys/glimp.cpp
 	)
 endif()
 
